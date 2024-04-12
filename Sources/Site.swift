@@ -24,6 +24,18 @@ struct ExampleSite: Site {
 
     var homePage = Home()
     var theme = MyTheme()
+    var gallery = Gallery()
+    var contactUs = ContactUs()
+    var menu = Menu()
+    
+    var pages: [any StaticPage] {
+        homePage
+        gallery
+        contactUs
+        menu
+    }
 }
+
+
 
 
