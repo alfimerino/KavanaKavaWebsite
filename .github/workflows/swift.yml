@@ -1,22 +1,43 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
+    permissions:
+      contents: read
+      deployments: write
+    runs-on: macos-14
 
-    runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.9'
+
+      - name: Build Swift package
+        run: |
+          swift build --configuration release
+
+      - name: Find compiled executable
+        run: |
+          find . -name "IgniteStarter"
+        shell: bash
+
+      - name: Run Swift package
+        run: ./.build/arm64-apple-macosx/release/IgniteStarter # Adjust path if necessary
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.MY_GH_TOKEN }} # Replace with your secret name
+          publish_dir: ./Build  # Adjust to your build output directory containing static files
+          publish_branch: gh-pages
